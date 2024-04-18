@@ -1,4 +1,3 @@
-import re
 import os
 from nltk.tokenize import word_tokenize
 from nltk.tokenize import sent_tokenize
@@ -6,10 +5,7 @@ from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from nltk.util import ngrams
 from sklearn.metrics import pairwise
-import pprint
-
 from Preprocessor import Preprocessor
-
 
 class NLPModel:
     def __init__(self):
@@ -36,9 +32,31 @@ class NLPModel:
             mat_train, mat_test, train_enum, test_enum
         )
 
-        self.compare(similarities)
+        comparison = self.compare(similarities)
+
+        self.results(comparison)
 
         return []
+    
+    def results(self, comparison):
+        ""
+        {(9, 0): [[9, 0], [6, 0], 0.9781564923143908],
+        (9, 1): [[9, 1], [6, 1], 0.2886751345948129],
+        (9, 2): [[9, 2], [6, 2], 0.7759402897989853],
+        (9, 3): [[9, 3], [6, 3], 0.7537783614444091],
+        (9, 4): [[9, 4], [6, 4], 0.9952718411247492],
+        (9, 5): [[9, 5], [6, 5], 0.6324555320336759]}
+        ""
+
+        average_similarity = {}
+        for key, value in comparison.items():
+            print(f"Text-sentence {key} is most similar to text-sentence {value[1]} with a similarity of {round(value[2], 2)}")
+            if key[0] not in average_similarity:
+                average_similarity[key[0]] = [value[2]]
+            else:
+                average_similarity[key[0]].append(value[2])
+        for key, value in average_similarity.items():
+            print(f"Average similarity for text {key} is {round(sum(value)/len(value), 2)}")
     
     def compare(self, similarities):  
         max_similarity = {}
@@ -52,11 +70,8 @@ class NLPModel:
                     if row[2] > max_similarity[tuple(row[0])]:
                         max_similarity[tuple(row[0])] = row[2]
                         comparison[tuple(row[0])] = row
-        print("Max similarity")
-        pprint.pprint(max_similarity)
-        pprint.pprint(comparison)
+        return comparison
 
-        
     def evaluate(
         self,
         train_data,

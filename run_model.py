@@ -4,6 +4,6 @@ from Preprocessor import Preprocessor
 
 train_path = "./train"
 test_path = "./test"
-n = 2
+n_gram = 2
 nlp = NLPModel()
-nlp.run(train_path, test_path, n)
+nlp.run(train_path, test_path, n_gram)
