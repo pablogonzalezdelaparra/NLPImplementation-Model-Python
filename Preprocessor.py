@@ -1,13 +1,8 @@
 import re
-
-# import os
 from nltk.tokenize import word_tokenize
 from nltk.tokenize import sent_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
-from nltk.util import ngrams
-
-# from sklearn.metrics import pairwise
 
 
 class Preprocessor:
