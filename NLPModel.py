@@ -7,6 +7,8 @@ from nltk.stem import WordNetLemmatizer
 from nltk.util import ngrams
 from sklearn.metrics import pairwise
 
+from Preprocessor import Preprocessor
+
 
 class NLPModel:
     def __init__(self):
@@ -29,18 +31,30 @@ class NLPModel:
         mat_test = self.one_hot_encoding(train_n_gram_corpus, test_n_gram)
 
         # Evaluate the similarity between the two datasets
-        self.evaluate(mat_train, mat_test, train_enum, test_enum, train_n_gram, test_n_gram)
+        self.evaluate(
+            mat_train, mat_test, train_enum, test_enum, train_n_gram, test_n_gram
+        )
 
         return []
 
-    def evaluate(self, train_data, train_test, train_enum, test_enum, train_sentences, test_sentences):
+    def evaluate(
+        self,
+        train_data,
+        train_test,
+        train_enum,
+        test_enum,
+        train_sentences,
+        test_sentences,
+    ):
         for i in range(len(train_data)):
             for j in range(len(train_test)):
                 cosine_similarity = pairwise.cosine_similarity(
                     [train_test[j]], [train_data[i]]
                 )
                 if cosine_similarity[0][0] > 0.5:
-                    print(f"Similarity detected:\nFID-{(test_enum[j][0])+1}.txt sentence {(test_enum[j][1]+1)} vs org-{(train_enum[i][0])+1}.txt sentence {(train_enum[i][1])+1}: {round((cosine_similarity[0][0])*100, 2)}%")
+                    print(
+                        f"Similarity detected:\nFID-{(test_enum[j][0])+1}.txt sentence {(test_enum[j][1]+1)} vs org-{(train_enum[i][0])+1}.txt sentence {(train_enum[i][1])+1}: {round((cosine_similarity[0][0])*100, 2)}%"
+                    )
                     print(f"FID-{(test_enum[j][0])+1}.txt: {test_sentences[j]}")
                     print(f"org-{(train_enum[i][0])+1}.txt: {train_sentences[i]}")
                     print()
@@ -87,70 +101,3 @@ class NLPModel:
             one_hot_test.append(temp_vector)
             temp_vector = []
         return one_hot_test
-
-
-class Preprocessor:
-    def __init__(self, data):
-        self.__data = data
-        self.__tokenized_words = []
-        self.__text_enum = {}
-
-    def clean_data(self):
-        self.__text_enum = self.get_text_enum()
-        self.__data = self.tokenize_data()
-        self.__data = self.lower_case()
-        self.__data = self.remove_non_word()
-        self.__tokenized_words = self.tokenize_words()
-        self.__tokenized_words = self.remove_stop_words()
-        self.__tokenized_words = self.lemmatize_data()
-        return self.__tokenized_words, self.__text_enum
-    
-    def get_text_enum(self):
-        text_enum = {}
-        global_count = 0
-        for i, text in enumerate(self.__data):
-            tokenized_text = sent_tokenize(text)
-            count = 0
-            for _ in tokenized_text:
-                text_enum[global_count] = [i, count]
-                count += 1
-                global_count += 1
-
-        return text_enum
-
-    def tokenize_data(self):
-        return [sent_tokenize(text) for text in self.__data]
-
-    def lower_case(self):
-        return [[sentence.lower() for sentence in text] for text in self.__data]
-
-    def remove_non_word(self):
-        return [
-            [re.sub(r"[^\w\s]", "", sentence) for sentence in text]
-            for text in self.__data
-        ]
-
-    def tokenize_words(self):
-        return [word_tokenize(sentence) for text in self.__data for sentence in text]
-
-    def remove_stop_words(self):
-        stop_words = set(stopwords.words("english"))
-        return [
-            [word for word in text if word not in stop_words]
-            for text in self.__tokenized_words
-        ]
-
-    def lemmatize_data(self):
-        lemmatizer = WordNetLemmatizer()
-        return [
-            [lemmatizer.lemmatize(word) for word in text]
-            for text in self.__tokenized_words
-        ]
-
-
-if __name__ == "__main__":
-    train_path = "./train"
-    test_path = "./test_dummy"
-    n = 2
-    nlp = NLPModel()
-    nlp.run(train_path, test_path, n)
