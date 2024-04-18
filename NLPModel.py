@@ -6,6 +6,7 @@ from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from nltk.util import ngrams
 from sklearn.metrics import pairwise
+import pprint
 
 from Preprocessor import Preprocessor
 
@@ -31,33 +32,48 @@ class NLPModel:
         mat_test = self.one_hot_encoding(train_n_gram_corpus, test_n_gram)
 
         # Evaluate the similarity between the two datasets
-        self.evaluate(
-            mat_train, mat_test, train_enum, test_enum, train_n_gram, test_n_gram
+        similarities = self.evaluate(
+            mat_train, mat_test, train_enum, test_enum
         )
 
-        return []
+        self.compare(similarities)
 
+        return []
+    
+    def compare(self, similarities):  
+        max_similarity = {}
+        comparison = {} 
+        for text in similarities:
+            for row in text:
+                if tuple(row[0]) not in max_similarity:
+                    max_similarity[tuple(row[0])] = row[2]
+                    comparison[tuple(row[0])] = row
+                else:
+                    if row[2] > max_similarity[tuple(row[0])]:
+                        max_similarity[tuple(row[0])] = row[2]
+                        comparison[tuple(row[0])] = row
+        print("Max similarity")
+        pprint.pprint(max_similarity)
+        pprint.pprint(comparison)
+
+        
     def evaluate(
         self,
         train_data,
-        train_test,
+        test_data,
         train_enum,
         test_enum,
-        train_sentences,
-        test_sentences,
     ):
-        for i in range(len(train_data)):
-            for j in range(len(train_test)):
+        temp_similarity = []
+        similarity_detected = []
+        for i in range(len(test_data)):
+            for j in range(len(train_data)):
                 cosine_similarity = pairwise.cosine_similarity(
-                    [train_test[j]], [train_data[i]]
+                    [test_data[i]], [train_data[j]]
                 )
-                if cosine_similarity[0][0] > 0.5:
-                    print(
-                        f"Similarity detected:\nFID-{(test_enum[j][0])+1}.txt sentence {(test_enum[j][1]+1)} vs org-{(train_enum[i][0])+1}.txt sentence {(train_enum[i][1])+1}: {round((cosine_similarity[0][0])*100, 2)}%"
-                    )
-                    print(f"FID-{(test_enum[j][0])+1}.txt: {test_sentences[j]}")
-                    print(f"org-{(train_enum[i][0])+1}.txt: {train_sentences[i]}")
-                    print()
+                temp_similarity.append([test_enum[i], train_enum[j], cosine_similarity[0][0]])
+            similarity_detected.append(temp_similarity)
+        return similarity_detected
 
     def clean_data(self, folder_path):
 
