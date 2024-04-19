@@ -1,7 +1,7 @@
 from unittest import TestCase
 from model import NLPModel
 
-class TestNLPModel(TestCase):
+class TestPreprocessor(TestCase):
 
     def setUp(self):
         self.nlp = NLPModel()
