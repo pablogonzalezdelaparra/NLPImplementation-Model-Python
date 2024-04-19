@@ -1,7 +1,7 @@
 from model import NLPModel
 
-train_path = "./train"
-test_path = "./test_dummy"
+train_path = "./train_data"
+test_path = "./test_data"
 
 nlp = NLPModel()
 nlp.train(train_path)
