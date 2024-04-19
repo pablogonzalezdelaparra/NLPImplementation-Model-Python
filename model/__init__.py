@@ -1,7 +1,7 @@
 import os
 from nltk.util import ngrams
 from sklearn.metrics import pairwise
-from Preprocessor import Preprocessor
+from model.Preprocessor import Preprocessor
 
 
 class NLPModel:
