@@ -10,18 +10,17 @@ class NLPModel:
         self.__train_n_gram = []
         self.__mat_train = []
         self.__train_enum = []
-        self.__n_gram = 1
+        self.__n_gram = 2
 
         self.__max_similarity = {}
         self.__average_similarity = {}
         self.__comparison = {}
 
-    def train(self, train_path, n_gram):
+    def train(self, train_path):
         # Clean the data
         train_data, self.__train_enum = self.__clean_data(train_path)
 
         # Create n-grams
-        self.__n_gram = n_gram
         self.__train_n_gram = self.__get_ngrams(train_data)
 
         # Flatten the data
