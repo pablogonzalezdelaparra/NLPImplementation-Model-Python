@@ -33,7 +33,16 @@ class NLPModel:
             mat_train, mat_test, train_enum, test_enum
         )
 
+        self.print_results(max_similarity, average_similarity)
+
         return []
+    
+    def print_results(self, max_similarity, average_similarity):
+        for key, value in max_similarity.items():
+            print(f"Text-sentence {key} is most similar to text-sentence {value[0]} with a similarity of {round(value[1], 4)}")
+
+        for key, value in average_similarity.items():
+            print(f"Average similarity for text {key} is {round(value, 4)}")
     
     def results(self, comparison):
         ""
@@ -75,8 +84,6 @@ class NLPModel:
                 else:
                     if cosine_similarity[0][0] > max_similarity[tuple(test_enum[i])][1]:
                         max_similarity[tuple(test_enum[i])] = [train_enum[j], cosine_similarity[0][0]]
-
-        pprint.pp(max_similarity)
         
         temp_average_similarity = {}
         average_similarity = {}
@@ -88,8 +95,6 @@ class NLPModel:
 
         for key, value in temp_average_similarity.items():
             average_similarity[key] = sum(value) / len(value)
-
-        pprint.pp(average_similarity)
 
         return max_similarity, average_similarity, comparison
 
