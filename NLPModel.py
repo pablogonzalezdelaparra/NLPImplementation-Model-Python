@@ -6,6 +6,7 @@ from nltk.stem import WordNetLemmatizer
 from nltk.util import ngrams
 from sklearn.metrics import pairwise
 from Preprocessor import Preprocessor
+import pprint
 
 class NLPModel:
     def __init__(self):
@@ -28,13 +29,9 @@ class NLPModel:
         mat_test = self.one_hot_encoding(train_n_gram_corpus, test_n_gram)
 
         # Evaluate the similarity between the two datasets
-        similarities = self.evaluate(
+        max_similarity, average_similarity, comparison = self.evaluate(
             mat_train, mat_test, train_enum, test_enum
         )
-
-        comparison = self.compare(similarities)
-
-        self.results(comparison)
 
         return []
     
@@ -58,20 +55,6 @@ class NLPModel:
         for key, value in average_similarity.items():
             print(f"Average similarity for text {key} is {round(sum(value)/len(value), 2)}")
     
-    def compare(self, similarities):  
-        max_similarity = {}
-        comparison = {} 
-        for text in similarities:
-            for row in text:
-                if tuple(row[0]) not in max_similarity:
-                    max_similarity[tuple(row[0])] = row[2]
-                    comparison[tuple(row[0])] = row
-                else:
-                    if row[2] > max_similarity[tuple(row[0])]:
-                        max_similarity[tuple(row[0])] = row[2]
-                        comparison[tuple(row[0])] = row
-        return comparison
-
     def evaluate(
         self,
         train_data,
@@ -79,16 +62,36 @@ class NLPModel:
         train_enum,
         test_enum,
     ):
-        temp_similarity = []
-        similarity_detected = []
+        max_similarity = {}
+        comparison = {}
         for i in range(len(test_data)):
             for j in range(len(train_data)):
                 cosine_similarity = pairwise.cosine_similarity(
                     [test_data[i]], [train_data[j]]
                 )
-                temp_similarity.append([test_enum[i], train_enum[j], cosine_similarity[0][0]])
-            similarity_detected.append(temp_similarity)
-        return similarity_detected
+                comparison[(i, j)] = [test_enum[i], train_enum[j], cosine_similarity[0][0]]
+                if tuple(test_enum[i]) not in max_similarity:
+                    max_similarity[tuple(test_enum[i])] = [train_enum[j], cosine_similarity[0][0]]
+                else:
+                    if cosine_similarity[0][0] > max_similarity[tuple(test_enum[i])][1]:
+                        max_similarity[tuple(test_enum[i])] = [train_enum[j], cosine_similarity[0][0]]
+
+        pprint.pp(max_similarity)
+        
+        temp_average_similarity = {}
+        average_similarity = {}
+        for key, value in max_similarity.items():
+            if key[0] not in temp_average_similarity:
+                temp_average_similarity[key[0]] = [value[1]]
+            else:
+                temp_average_similarity[key[0]].append(value[1])
+
+        for key, value in temp_average_similarity.items():
+            average_similarity[key] = sum(value) / len(value)
+
+        pprint.pp(average_similarity)
+
+        return max_similarity, average_similarity, comparison
 
     def clean_data(self, folder_path):
 
