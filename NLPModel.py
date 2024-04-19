@@ -1,90 +1,116 @@
 import os
-from nltk.tokenize import word_tokenize
-from nltk.tokenize import sent_tokenize
-from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer
 from nltk.util import ngrams
 from sklearn.metrics import pairwise
 from Preprocessor import Preprocessor
-import pprint
+
 
 class NLPModel:
     def __init__(self):
-        pass
+        self.__train_n_gram_corpus = []
+        self.__train_n_gram = []
+        self.__mat_train = []
+        self.__train_enum = []
+        self.__n_gram = 1
 
-    def run(self, train_path, test_path, n):
+        self.__max_similarity = {}
+        self.__average_similarity = {}
+        self.__comparison = {}
+
+    def train(self, train_path, n_gram):
         # Clean the data
-        train_data, train_enum = self.clean_data(train_path)
-        test_data, test_enum = self.clean_data(test_path)
+        train_data, self.__train_enum = self.__clean_data(train_path)
 
         # Create n-grams
-        train_n_gram = self.get_ngrams(train_data, n)
-        test_n_gram = self.get_ngrams(test_data, n)
+        self.__n_gram = n_gram
+        self.__train_n_gram = self.__get_ngrams(train_data)
 
         # Flatten the data
-        train_n_gram_corpus = self.flatten_data(train_n_gram)
+        self.__train_n_gram_corpus = self.__flatten_data(self.__train_n_gram)
 
         # One-hot encoding
-        mat_train = self.one_hot_encoding(train_n_gram_corpus, train_n_gram)
-        mat_test = self.one_hot_encoding(train_n_gram_corpus, test_n_gram)
-
-        # Evaluate the similarity between the two datasets
-        max_similarity, average_similarity, comparison = self.evaluate(
-            mat_train, mat_test, train_enum, test_enum
-        )
-
-        self.print_results(max_similarity, average_similarity)
+        self.__mat_train = self.__one_hot_encoding(self.__train_n_gram_corpus, self.__train_n_gram)
 
         return []
-    
-    def print_results(self, max_similarity, average_similarity):
-        for key, value in max_similarity.items():
-            print(f"Text-sentence {key} is most similar to text-sentence {value[0]} with a similarity of {round(value[1], 4)}")
 
-        for key, value in average_similarity.items():
-            print(f"Average similarity for text {key} is {round(value, 4)}")
-    
-    def results(self, comparison):
-        ""
-        {(9, 0): [[9, 0], [6, 0], 0.9781564923143908],
-        (9, 1): [[9, 1], [6, 1], 0.2886751345948129],
-        (9, 2): [[9, 2], [6, 2], 0.7759402897989853],
-        (9, 3): [[9, 3], [6, 3], 0.7537783614444091],
-        (9, 4): [[9, 4], [6, 4], 0.9952718411247492],
-        (9, 5): [[9, 5], [6, 5], 0.6324555320336759]}
-        ""
+    def evaluate(self, test_path):
+        # Clean the data
+        test_data, test_enum = self.__clean_data(test_path)
 
-        average_similarity = {}
-        for key, value in comparison.items():
-            print(f"Text-sentence {key} is most similar to text-sentence {value[1]} with a similarity of {round(value[2], 2)}")
-            if key[0] not in average_similarity:
-                average_similarity[key[0]] = [value[2]]
-            else:
-                average_similarity[key[0]].append(value[2])
-        for key, value in average_similarity.items():
-            print(f"Average similarity for text {key} is {round(sum(value)/len(value), 2)}")
-    
-    def evaluate(
+        # Create n-grams
+        test_n_gram = self.__get_ngrams(test_data)
+
+        # One-hot encoding
+        mat_test = self.__one_hot_encoding(self.__train_n_gram_corpus, test_n_gram)
+
+        # Evaluate the similarity between the two datasets
+        max_similarity, average_similarity, comparison = self.__compare_texts(
+            mat_test, test_enum
+        )
+
+        self.__max_similarity = max_similarity
+        self.__average_similarity = average_similarity
+        self.__comparison = comparison
+
+        return []
+
+    def print_max_similarity(self):
+        current_key = -1
+        print("Max similarity:")
+        for key, value in self.__max_similarity.items():
+            if key[0] != current_key:
+                current_key = key[0]
+                print(f"-----Test file #{current_key}-----")
+            print(f"Sentence #{int(key[1])+1} --> Train file #{int(value[0][0])+1}. Sentence #{int(value[0][1])+1}: {round((value[1])*100, 3)}%")
+        print("\n")
+
+    def print_average_similarity(self):
+        print("Average similarity:")
+        for key, value in self.__average_similarity.items():
+            flag = False
+            if value > 0.5:
+                flag = True
+            print(f"Test file #{int(key)+1} | Plagiarized: {flag} | Average similarity: {round((value)*100, 3)}%")
+        print("\n")
+
+    def print_comparison(self):
+        current_key = -1
+        print("Comparison:")
+        for key, value in self.__comparison.items():
+            if value[0][1] != current_key:
+                current_key = value[0][1]
+                print(f"-----Test file #{current_key}-----")
+            print(f"Sentence #{int(value[1][1])+1} --> Train file #{int(value[1][0])+1}. Sentence #{int(value[1][1])+1}: {round((value[2])*100, 3)}%")
+        print("\n")
+ 
+    def __compare_texts(
         self,
-        train_data,
-        test_data,
-        train_enum,
+        mat_test,
         test_enum,
     ):
         max_similarity = {}
         comparison = {}
-        for i in range(len(test_data)):
-            for j in range(len(train_data)):
+        for i in range(len(mat_test)):
+            for j in range(len(self.__mat_train)):
                 cosine_similarity = pairwise.cosine_similarity(
-                    [test_data[i]], [train_data[j]]
+                    [mat_test[i]], [self.__mat_train[j]]
                 )
-                comparison[(i, j)] = [test_enum[i], train_enum[j], cosine_similarity[0][0]]
+                comparison[(i, j)] = [
+                    test_enum[i],
+                    self.__train_enum[j],
+                    cosine_similarity[0][0],
+                ]
                 if tuple(test_enum[i]) not in max_similarity:
-                    max_similarity[tuple(test_enum[i])] = [train_enum[j], cosine_similarity[0][0]]
+                    max_similarity[tuple(test_enum[i])] = [
+                        self.__train_enum[j],
+                        cosine_similarity[0][0],
+                    ]
                 else:
                     if cosine_similarity[0][0] > max_similarity[tuple(test_enum[i])][1]:
-                        max_similarity[tuple(test_enum[i])] = [train_enum[j], cosine_similarity[0][0]]
-        
+                        max_similarity[tuple(test_enum[i])] = [
+                            self.__train_enum[j],
+                            cosine_similarity[0][0],
+                        ]
+
         temp_average_similarity = {}
         average_similarity = {}
         for key, value in max_similarity.items():
@@ -98,7 +124,7 @@ class NLPModel:
 
         return max_similarity, average_similarity, comparison
 
-    def clean_data(self, folder_path):
+    def __clean_data(self, folder_path):
 
         def load_folder(folder_path):
             data = []
@@ -115,19 +141,19 @@ class NLPModel:
         data = preprocessor.clean_data()
         return data
 
-    def get_ngrams(self, data, n):
+    def __get_ngrams(self, data):
         n_gram = []
 
         # TODO: Consider n=1
 
         for text in data:
-            n_gram.append(list(ngrams(text, n)))
+            n_gram.append(list(ngrams(text, self.__n_gram)))
         return n_gram
 
-    def flatten_data(self, data):
+    def __flatten_data(self, data):
         return [word for text in data for word in text]
 
-    def one_hot_encoding(self, corpus, data):
+    def __one_hot_encoding(self, corpus, data):
         temp_vector = []
         one_hot_test = []
 
