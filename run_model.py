@@ -1,8 +1,9 @@
 from model import NLPModel
 
-train_path = "./train_data"
-test_path = "./test_data"
-threshold_dic = {
+# Define the paths
+train_path = "./tests/train_data"
+test_path = "./tests/test_data"
+text_results_catalog = {
     "0": 1,
     "1": 1,
     "2": 1,
@@ -24,10 +25,19 @@ threshold_dic = {
     "18": 0,
     "19": 0,
 }
-
 nlp = NLPModel()
-nlp.train(train_path)
-nlp.evaluate(test_path)
-nlp.print_max_similarity()
-nlp.print_average_similarity()
-nlp.AUC(threshold_dic)
+
+# Prepare the data
+train_data, train_enum = nlp.prepare_text(train_path)
+test_data, test_enum = nlp.prepare_text(test_path)
+
+# Evaluate the model
+max_similarity, average_similarity, comparison = nlp.evaluate_model(
+    train_data, test_data, train_enum, test_enum
+)
+nlp.AUC(average_similarity, text_results_catalog)
+
+# Print the results
+nlp.print_average_similarity(average_similarity)
+nlp.print_max_similarity(max_similarity)
+# nlp.print_comparison(comparison)

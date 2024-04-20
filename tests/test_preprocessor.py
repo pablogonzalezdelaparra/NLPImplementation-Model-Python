@@ -6,36 +6,364 @@ from model.Preprocessor import Preprocessor
 class TestPreprocessor(TestCase):
 
     def setUp(self):
-        self.nlp = NLPModel()
-        self.p = Preprocessor(
-            [
-                "Artificial intelligence, often abbreviated as AI, revolutionizes how we interact with technology. From powering virtual assistants to driving autonomous vehicles, AI systems mimic human intelligence to perform tasks efficiently.",
-                "Its applications span across industries, from healthcare to finance, enhancing productivity and decision-making processes. As AI continues to evolve, its potential to reshape society's dynamics and advance human progress remains unparalleled.",
-            ]
+        self.p = Preprocessor()
+
+    def test_clean_data(self):
+        self.assertEqual(
+            (
+                [
+                    ["first", "sentence", "first", "text"],
+                    ["another", "sentence", "also", "first", "text"],
+                    ["first", "sentence", "second", "text"],
+                    ["another", "sentence", "also", "second", "text"],
+                ],
+                {0: [0, 0], 1: [0, 1], 2: [1, 0], 3: [1, 1]},
+            ),
+            self.p.clean_data(
+                [
+                    "This is the first sentence of the first text. Now, this is another sentence but also of the first text.",
+                    "This is the first sentence of the second text. Now, this is another sentence but also of the second text.",
+                ]
+            ),
         )
-        self.train_path = "./train_data"
-        self.test_path = "./test_data"
 
     def test___get_text_enum(self):
         self.assertEqual(
             {0: [0, 0], 1: [0, 1], 2: [1, 0], 3: [1, 1]},
-            self.p._Preprocessor__get_text_enum(),
+            self.p._Preprocessor__get_text_enum(
+                [
+                    "This is the first sentence of the first text. Now, this is another sentence but also of the first text.",
+                    "This is the first sentence of the second text. Now, this is another sentence but also of the second text.",
+                ]
+            ),
         )
 
     def test___tokenize_data(self):
         self.assertEqual(
             [
                 [
-                    "Artificial intelligence, often abbreviated as AI, revolutionizes how we interact with technology.",
-                    "From powering virtual assistants to driving autonomous vehicles, AI systems mimic human intelligence to perform tasks efficiently.",
+                    "This is the first sentence of the first text.",
+                    "Now, this is another sentence but also of the first text.",
                 ],
                 [
-                    "Its applications span across industries, from healthcare to finance, enhancing productivity and decision-making processes.",
-                    "As AI continues to evolve, its potential to reshape society's dynamics and advance human progress remains unparalleled.",
+                    "This is the first sentence of the second text.",
+                    "Now, this is another sentence but also of the second text.",
                 ],
             ],
-            self.p._Preprocessor__tokenize_data(),
+            self.p._Preprocessor__tokenize_data(
+                [
+                    "This is the first sentence of the first text. Now, this is another sentence but also of the first text.",
+                    "This is the first sentence of the second text. Now, this is another sentence but also of the second text.",
+                ]
+            ),
         )
 
-    # def test___lower_case(self):
-    #     ...
+    def test___lower_case(self):
+        self.assertEqual(
+            [
+                [
+                    "this is the first sentence of the first text.",
+                    "now, this is another sentence but also of the first text.",
+                ],
+                [
+                    "this is the first sentence of the second text.",
+                    "now, this is another sentence but also of the second text.",
+                ],
+            ],
+            self.p._Preprocessor__lower_case(
+                [
+                    [
+                        "This is the first sentence of the first text.",
+                        "Now, this is another sentence but also of the first text.",
+                    ],
+                    [
+                        "This is the first sentence of the second text.",
+                        "Now, this is another sentence but also of the second text.",
+                    ],
+                ]
+            ),
+        )
+
+    def test___remove_non_word(self):
+        self.assertEqual(
+            [
+                [
+                    "This is the first sentence of the first text",
+                    "Now this is another sentence but also of the first text",
+                ],
+                [
+                    "This is the first sentence of the second text",
+                    "Now this is another sentence but also of the second text",
+                ],
+            ],
+            self.p._Preprocessor__remove_non_word(
+                [
+                    [
+                        "This is the first sentence of the first text.",
+                        "Now, this is another sentence but also of the first text.",
+                    ],
+                    [
+                        "This is the first sentence of the second text.",
+                        "Now, this is another sentence but also of the second text.",
+                    ],
+                ]
+            ),
+        )
+
+    def test___tokenize_words(self):
+        self.assertEqual(
+            [
+                [
+                    "This",
+                    "is",
+                    "the",
+                    "first",
+                    "sentence",
+                    "of",
+                    "the",
+                    "first",
+                    "text",
+                    ".",
+                ],
+                [
+                    "Now",
+                    ",",
+                    "this",
+                    "is",
+                    "another",
+                    "sentence",
+                    "but",
+                    "also",
+                    "of",
+                    "the",
+                    "first",
+                    "text",
+                    ".",
+                ],
+                [
+                    "This",
+                    "is",
+                    "the",
+                    "first",
+                    "sentence",
+                    "of",
+                    "the",
+                    "second",
+                    "text",
+                    ".",
+                ],
+                [
+                    "Now",
+                    ",",
+                    "this",
+                    "is",
+                    "another",
+                    "sentence",
+                    "but",
+                    "also",
+                    "of",
+                    "the",
+                    "second",
+                    "text",
+                    ".",
+                ],
+            ],
+            self.p._Preprocessor__tokenize_words(
+                [
+                    [
+                        "This is the first sentence of the first text.",
+                        "Now, this is another sentence but also of the first text.",
+                    ],
+                    [
+                        "This is the first sentence of the second text.",
+                        "Now, this is another sentence but also of the second text.",
+                    ],
+                ]
+            ),
+        )
+
+    def test___remove_stop_words(self):
+        self.assertEqual(
+            [
+                ["This", "first", "sentence", "first", "text", "."],
+                ["Now", ",", "another", "sentence", "also", "first", "text", "."],
+                ["This", "first", "sentence", "second", "text", "."],
+                ["Now", ",", "another", "sentence", "also", "second", "text", "."],
+            ],
+            self.p._Preprocessor__remove_stop_words(
+                [
+                    [
+                        "This",
+                        "is",
+                        "the",
+                        "first",
+                        "sentence",
+                        "of",
+                        "the",
+                        "first",
+                        "text",
+                        ".",
+                    ],
+                    [
+                        "Now",
+                        ",",
+                        "this",
+                        "is",
+                        "another",
+                        "sentence",
+                        "but",
+                        "also",
+                        "of",
+                        "the",
+                        "first",
+                        "text",
+                        ".",
+                    ],
+                    [
+                        "This",
+                        "is",
+                        "the",
+                        "first",
+                        "sentence",
+                        "of",
+                        "the",
+                        "second",
+                        "text",
+                        ".",
+                    ],
+                    [
+                        "Now",
+                        ",",
+                        "this",
+                        "is",
+                        "another",
+                        "sentence",
+                        "but",
+                        "also",
+                        "of",
+                        "the",
+                        "second",
+                        "text",
+                        ".",
+                    ],
+                ],
+            ),
+        )
+
+    def test___lemmatize_data(self):
+        self.assertEqual(
+            [
+                [
+                    "This",
+                    "is",
+                    "the",
+                    "first",
+                    "sentence",
+                    "of",
+                    "the",
+                    "first",
+                    "text",
+                    ".",
+                ],
+                [
+                    "Now",
+                    ",",
+                    "this",
+                    "is",
+                    "another",
+                    "sentence",
+                    "but",
+                    "also",
+                    "of",
+                    "the",
+                    "first",
+                    "text",
+                    ".",
+                ],
+                [
+                    "This",
+                    "is",
+                    "the",
+                    "first",
+                    "sentence",
+                    "of",
+                    "the",
+                    "second",
+                    "text",
+                    ".",
+                ],
+                [
+                    "Now",
+                    ",",
+                    "this",
+                    "is",
+                    "another",
+                    "sentence",
+                    "but",
+                    "also",
+                    "of",
+                    "the",
+                    "second",
+                    "text",
+                    ".",
+                ],
+            ],
+            self.p._Preprocessor__lemmatize_data(
+                [
+                    [
+                        "This",
+                        "is",
+                        "the",
+                        "first",
+                        "sentence",
+                        "of",
+                        "the",
+                        "first",
+                        "text",
+                        ".",
+                    ],
+                    [
+                        "Now",
+                        ",",
+                        "this",
+                        "is",
+                        "another",
+                        "sentence",
+                        "but",
+                        "also",
+                        "of",
+                        "the",
+                        "first",
+                        "text",
+                        ".",
+                    ],
+                    [
+                        "This",
+                        "is",
+                        "the",
+                        "first",
+                        "sentence",
+                        "of",
+                        "the",
+                        "second",
+                        "text",
+                        ".",
+                    ],
+                    [
+                        "Now",
+                        ",",
+                        "this",
+                        "is",
+                        "another",
+                        "sentence",
+                        "but",
+                        "also",
+                        "of",
+                        "the",
+                        "second",
+                        "text",
+                        ".",
+                    ],
+                ]
+            ),
+        )
