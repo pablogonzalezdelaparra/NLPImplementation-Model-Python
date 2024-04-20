@@ -367,3 +367,56 @@ class TestPreprocessor(TestCase):
                 ]
             ),
         )
+
+    def test_clean_data_empty(self):
+        self.assertEqual(
+            (
+                [],
+                {},
+            ),
+            self.p.clean_data([]),
+        )
+
+    def test___get_text_enum_empty(self):
+        self.assertEqual(
+            {},
+            self.p._Preprocessor__get_text_enum([]),
+        )
+
+    def test___tokenize_data_empty(self):
+        self.assertEqual(
+            [],
+            self.p._Preprocessor__tokenize_data([]),
+        )
+
+    def test___lower_case_empty(self):
+        self.assertEqual(
+            [],
+            self.p._Preprocessor__lower_case([]),
+        )
+
+    def test___remove_non_word_empty(self):
+        self.assertEqual(
+            [],
+            self.p._Preprocessor__remove_non_word([]),
+        )
+
+    def test___tokenize_words_empty(self):
+        self.assertEqual(
+            [],
+            self.p._Preprocessor__tokenize_words([]),
+        )
+
+    def test___remove_stop_words_empty(self):
+        self.assertEqual(
+            [],
+            self.p._Preprocessor__remove_stop_words(
+                [],
+            ),
+        )
+
+    def test___lemmatize_data_empty(self):
+        self.assertEqual(
+            [],
+            self.p._Preprocessor__lemmatize_data([]),
+        )

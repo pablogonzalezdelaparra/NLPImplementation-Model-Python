@@ -194,6 +194,10 @@ class NLPModel:
         :return: The data.
         """
         data = []
+
+        if not os.path.exists(folder_path):
+            raise FileNotFoundError(f"Folder path {folder_path} does not exist.")
+
         for filename in sorted(os.listdir(folder_path)):
             if filename.endswith(".txt"):
                 with open(

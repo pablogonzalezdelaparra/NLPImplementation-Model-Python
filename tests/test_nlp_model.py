@@ -244,3 +244,107 @@ class TestNLPModel(TestCase):
                 },
             ),
         )
+
+    def test___load_folder_train_empty(self):
+        self.assertRaises(
+            FileNotFoundError,
+            self.nlp._NLPModel__load_folder,
+            "",
+        )
+
+    def test___clean_data_train(self):
+        self.assertEqual(
+            (
+                [
+                    
+                ],
+                {},
+            ),
+            self.nlp._NLPModel__clean_data(
+                [
+                   
+                ],
+            ),
+        )
+
+    def test___get_ngrams_train_empty(self):
+        self.assertEqual(
+            [
+                
+            ],
+            self.nlp._NLPModel__get_ngrams(
+                [
+                    
+                ],
+            ),
+        )
+
+    def test___flatten_data_empty(self):
+        self.assertEqual(
+            [
+                
+            ],
+            self.nlp._NLPModel__flatten_data(
+                [
+                   
+                ],
+            ),
+        )
+
+    def test___one_hot_encoding_train_empty(self):
+        self.assertEqual(
+            [
+               
+            ],
+            self.nlp._NLPModel__one_hot_encoding(
+                [
+                   
+                ],
+                [
+
+                ],
+            ),
+        )
+
+    def test___one_hot_encoding_test_empty(self):
+        self.assertEqual(
+            [
+              
+            ],
+            self.nlp._NLPModel__one_hot_encoding(
+                [
+                    
+                ],
+                [
+                   
+                ],
+            ),
+        )
+
+    def test___cosine_similarity_empty(self):
+        self.assertEqual(
+            (
+                {},
+                {},
+                {
+                    
+                },
+            ),
+            self.nlp._NLPModel__cosine_similarity(
+                [],
+                {},
+                [],
+                {},
+            ),
+        )
+
+    def test_AUC_empty(self):
+        self.assertEqual(
+            (0, 0, 0, 0, 0.5),
+            self.nlp.AUC(
+                {},
+                {
+                   
+                },
+            ),
+        )
