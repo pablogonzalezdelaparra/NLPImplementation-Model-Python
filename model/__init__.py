@@ -5,18 +5,32 @@ from model.Preprocessor import Preprocessor
 
 
 class NLPModel:
+    """
+    The NLPModel class is used to train and evaluate the model.
+    """
+    
     def __init__(self):
+        """
+        Initialize the model with the necessary parameters.
+        """
+        # Initialize the necessary parameters for training
         self.__train_n_gram_corpus = []
         self.__train_n_gram = []
         self.__mat_train = []
         self.__train_enum = []
         self.__n_gram = 2
 
+        # Initialize the necessary parameters for evaluation
         self.__max_similarity = {}
         self.__average_similarity = {}
         self.__comparison = {}
 
     def train(self, train_path):
+        """
+        Train the model with the given training data.
+        :param train_path: The path to the training data.
+        :return: TODO:
+        """
         # Clean the data
         train_data, self.__train_enum = self.__clean_data(train_path)
 
@@ -27,11 +41,18 @@ class NLPModel:
         self.__train_n_gram_corpus = self.__flatten_data(self.__train_n_gram)
 
         # One-hot encoding
-        self.__mat_train = self.__one_hot_encoding(self.__train_n_gram_corpus, self.__train_n_gram)
+        self.__mat_train = self.__one_hot_encoding(
+            self.__train_n_gram_corpus, self.__train_n_gram
+        )
 
         return []
 
     def evaluate(self, test_path):
+        """
+        Evaluate the model with the given test data.
+        :param test_path: The path to the test data.
+        :return: TODO:
+        """
         # Clean the data
         test_data, test_enum = self.__clean_data(test_path)
 
@@ -51,8 +72,13 @@ class NLPModel:
         self.__comparison = comparison
 
         return []
-    
+
     def AUC(self, threshold_dic):
+        """
+        Calculate the Area Under the Curve (AUC) for the given threshold dictionary.
+        :param threshold_dic: The threshold dictionary.
+        :return: The AUC value.
+        """
         TP = 0
         FP = 0
         TN = 0
@@ -86,39 +112,63 @@ class NLPModel:
         return (TP, FP, TN, FN, AUC)
 
     def print_max_similarity(self):
+        """
+        Print the maximum similarity between the test and training data.
+        :return: None
+        """
         current_key = -1
         print("Max similarity:")
         for key, value in self.__max_similarity.items():
             if key[0] != current_key:
                 current_key = key[0]
                 print(f"-----Test file #{current_key}-----")
-            print(f"Sentence #{int(key[1])+1} --> Train file #{int(value[0][0])+1}. Sentence #{int(value[0][1])+1}: {round((value[1])*100, 3)}%")
+            print(
+                f"Sentence #{int(key[1])+1} --> Train file #{int(value[0][0])+1}. Sentence #{int(value[0][1])+1}: {round((value[1])*100, 3)}%"
+            )
         print("\n")
 
     def print_average_similarity(self):
+        """
+        Print the average similarity between the test and training data.
+        :return: None
+        """
         print("Average similarity:")
         for key, value in self.__average_similarity.items():
             flag = False
             if value > 0.5:
                 flag = True
-            print(f"Test file #{int(key)+1} | Plagiarized: {flag} | Average similarity: {round((value)*100, 3)}%")
+            print(
+                f"Test file #{int(key)+1} | Plagiarized: {flag} | Average similarity: {round((value)*100, 3)}%"
+            )
         print("\n")
 
     def print_comparison(self):
+        """
+        Print the comparison between the test and training data.
+        :return: None
+        """
         current_key = -1
         print("Comparison:")
         for key, value in self.__comparison.items():
             if value[0][1] != current_key:
                 current_key = value[0][1]
                 print(f"-----Test file #{current_key}-----")
-            print(f"Sentence #{int(value[1][1])+1} --> Train file #{int(value[1][0])+1}. Sentence #{int(value[1][1])+1}: {round((value[2])*100, 3)}%")
+            print(
+                f"Sentence #{int(value[1][1])+1} --> Train file #{int(value[1][0])+1}. Sentence #{int(value[1][1])+1}: {round((value[2])*100, 3)}%"
+            )
         print("\n")
- 
+
     def __compare_texts(
         self,
         mat_test,
         test_enum,
     ):
+        """
+        Compare the test and training data using cosine similarity.
+        :param mat_test: The one-hot encoded test data.
+        :param test_enum: The enumerated test data.
+        :return: The maximum similarity, average similarity, and comparison between the test and training data.
+        """
         max_similarity = {}
         comparison = {}
         for i in range(len(mat_test)):
@@ -157,8 +207,18 @@ class NLPModel:
         return max_similarity, average_similarity, comparison
 
     def __clean_data(self, folder_path):
+        """
+        Clean the data from the given folder path.
+        :param folder_path: The path to the folder containing the data.
+        :return: The cleaned data.
+        """
 
         def load_folder(folder_path):
+            """
+            Load the data from the given folder path.
+            :param folder_path: The path to the folder containing the data.
+            :return: The loaded data.
+            """
             data = []
             for filename in sorted(os.listdir(folder_path)):
                 if filename.endswith(".txt"):
@@ -174,18 +234,32 @@ class NLPModel:
         return data
 
     def __get_ngrams(self, data):
+        """
+        Create n-grams from the given data.
+        :param data: The data to create n-grams from.
+        :return: The n-grams.
+        """
         n_gram = []
-
-        # TODO: Consider n=1
 
         for text in data:
             n_gram.append(list(ngrams(text, self.__n_gram)))
         return n_gram
 
     def __flatten_data(self, data):
+        """
+        Flatten the given data.
+        :param data: The data to flatten.
+        :return: The flattened data.
+        """
         return [word for text in data for word in text]
 
     def __one_hot_encoding(self, corpus, data):
+        """
+        Perform one-hot encoding on the given data.
+        :param corpus: The corpus to encode.
+        :param data: The data to encode.
+        :return: The one-hot encoded data.
+        """
         temp_vector = []
         one_hot_test = []
 
