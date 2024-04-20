@@ -455,6 +455,42 @@ class TestPreprocessor(TestCase):
             ),
         )
 
+    def test___tokenize_data_all_caps(self):
+        self.assertEqual(
+            [
+                ["A FIRST SHORT SENTENCE"],
+                ["THIS IS A SECOND SHORT SENTENCE"],
+                ["A THIRD SHORT SENTENCE, ALL IN CAPITAL LETTERS"],
+                ["FOURTH SENTENCE"],
+            ],
+            self.p._Preprocessor__tokenize_data(
+                [
+                    "A FIRST SHORT SENTENCE",
+                    "THIS IS A SECOND SHORT SENTENCE",
+                    "A THIRD SHORT SENTENCE, ALL IN CAPITAL LETTERS",
+                    "FOURTH SENTENCE",
+                ]
+            ),
+        )
+
+    def test___lower_case_all_caps(self):
+        self.assertEqual(
+            [
+                ["a first short sentence"],
+                ["this is a second short sentence"],
+                ["a third short sentence, all in capital letters"],
+                ["fourth sentence"],
+            ],
+            self.p._Preprocessor__lower_case(
+                [
+                    ["A FIRST SHORT SENTENCE"],
+                    ["THIS IS A SECOND SHORT SENTENCE"],
+                    ["A THIRD SHORT SENTENCE, ALL IN CAPITAL LETTERS"],
+                    ["FOURTH SENTENCE"],
+                ],
+            ),
+        )
+
     def test_clean_data_symbols(self):
         self.assertEqual(
             (
