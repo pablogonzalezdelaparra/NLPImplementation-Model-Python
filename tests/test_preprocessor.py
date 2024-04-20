@@ -592,8 +592,99 @@ class TestPreprocessor(TestCase):
             ),
             self.p.clean_data(
                 [
-                    "          a lot of trailing       spaces                       here    ",
+                    "          a lot of trailing       spaces                       here    .",
                     "                             a normal sentence                   with spaces              . ",
                 ]
+            ),
+        )
+
+    def test___get_text_enum_trailing_spaces(self):
+        self.assertEqual(
+            {0: [0, 0], 1: [1, 0]},
+            self.p._Preprocessor__get_text_enum(
+                [
+                    "          a lot of trailing       spaces                       here    .",
+                    "                             a normal sentence                   with spaces              . ",
+                ]
+            ),
+        )
+
+    def test___tokenize_data_trailing_spaces(self):
+        self.assertEqual(
+            [
+                [
+                    "          a lot of trailing       spaces                       here    ."
+                ],
+                [
+                    "                             a normal sentence                   with spaces              ."
+                ],
+            ],
+            self.p._Preprocessor__tokenize_data(
+                [
+                    "          a lot of trailing       spaces                       here    .",
+                    "                             a normal sentence                   with spaces              . ",
+                ]
+            ),
+        )
+
+    def test___lower_case_trailing_spaces(self):
+        self.assertEqual(
+            [
+                [
+                    "          a lot of trailing       spaces                       here    ."
+                ],
+                [
+                    "                             a normal sentence                   with spaces              ."
+                ],
+            ],
+            self.p._Preprocessor__lower_case(
+                [
+                    [
+                        "          a lot of trailing       spaces                       here    ."
+                    ],
+                    [
+                        "                             a normal sentence                   with spaces              ."
+                    ],
+                ],
+            ),
+        )
+
+    def test___remove_non_word_trailing_spaces(self):
+        self.assertEqual(
+            [
+                [
+                    "          a lot of trailing       spaces                       here    "
+                ],
+                [
+                    "                             a normal sentence                   with spaces              "
+                ],
+            ],
+            self.p._Preprocessor__remove_non_word(
+                [
+                    [
+                        "          a lot of trailing       spaces                       here    ."
+                    ],
+                    [
+                        "                             a normal sentence                   with spaces              ."
+                    ],
+                ],
+            ),
+        )
+
+    def test___tokenize_words_trailing_spaces(self):
+        self.assertEqual(
+            [
+                ["a", "lot", "of", "trailing", "spaces", "here"],
+                ["a", "normal", "sentence", "with", "spaces"],
+            ],
+            self.p._Preprocessor__tokenize_words(
+                [
+                    [
+                        "          a lot of trailing       spaces                       here    "
+                    ],
+                    [
+                        "                             a normal sentence                   with spaces              "
+                    ],
+                ],
             ),
         )
