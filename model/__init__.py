@@ -51,6 +51,41 @@ class NLPModel:
         self.__comparison = comparison
 
         return []
+    
+    def AUC(self, threshold_dic):
+        TP = 0
+        FP = 0
+        TN = 0
+        FN = 0
+        for key, value in self.__average_similarity.items():
+            if threshold_dic[str(key)] == 1:
+                if value > 0.5:
+                    TP += 1
+                else:
+                    FN += 1
+            else:
+                if value > 0.5:
+                    FP += 1
+                else:
+                    TN += 1
+
+        if TP + FN == 0:
+            TPR = 0
+        else:
+            TPR = TP / (TP + FN)
+        if FP + TN == 0:
+            FPR = 0
+        else:
+            FPR = FP / (FP + TN)
+
+        TPR = TP / (TP + FN)
+        FPR = FP / (FP + TN)
+        AUC = (1 + TPR - FPR) / 2
+
+        print("AUC calculation:")
+        print(f"TP: {TP}, FP: {FP}, TN: {TN}, FN: {FN}, AUC: {AUC}")
+
+        return (TP, FP, TN, FN, AUC)
 
     def print_max_similarity(self):
         current_key = -1

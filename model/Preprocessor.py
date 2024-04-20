@@ -42,7 +42,7 @@ class Preprocessor:
 
     def __remove_non_word(self):
         return [
-            [re.sub(r"[^\w\s]", "", sentence) for sentence in text]
+            [re.sub(r"[-]|([^\w\s])", lambda x: ' ' if x.group(1) == '-' else '', sentence) for sentence in text]
             for text in self.__data
         ]
 
