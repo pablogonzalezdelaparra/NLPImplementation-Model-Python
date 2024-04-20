@@ -8,7 +8,7 @@ class NLPModel:
     """
     The NLPModel class is used to train and evaluate the model.
     """
-    
+
     def __init__(self):
         """
         Initialize the model with the necessary parameters.

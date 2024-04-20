@@ -70,7 +70,14 @@ class Preprocessor:
         :return: The data with non-word characters removed.
         """
         return [
-            [re.sub(r"[-]|([^\w\s])", lambda x: ' ' if x.group(1) == '-' else '', sentence) for sentence in text]
+            [
+                re.sub(
+                    r"[-]|([^\w\s])",
+                    lambda x: " " if x.group(1) == "-" else "",
+                    sentence,
+                )
+                for sentence in text
+            ]
             for text in self.__data
         ]
 
