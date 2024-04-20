@@ -11,16 +11,19 @@ class NLPModel:
 
     def __init__(self, similarity_limit=0.5, n_gram=2):
         """
-        Initialize the model with the necessary parameters.
+        Initialize the NLPModel class.
+        :param similarity_limit: The similarity limit.
+        :param n_gram: The n-gram.
         """
         self.__similarity_limit = similarity_limit
         self.__n_gram = n_gram
 
     def prepare_text(self, folder_path):
         """
-        Prepare the text data from the given folder path.
+        Prepare the text data for the model.
         :param folder_path: The path to the folder containing the data.
-        :return: The loaded data.
+        :return: n_gram: The n-grams.
+        :return: text_enum: The enumerated text data.
         """
         sentences = self.__load_folder(folder_path)
         clean_data, text_enum = self.__clean_data(sentences)
@@ -29,9 +32,14 @@ class NLPModel:
 
     def evaluate_model(self, train_ngram, test_ngram, train_enum, test_enum):
         """
-        Train the model with the given training data.
-        :param train_path: The path to the training data.
-        :return: mat_train: The one-hot encoded training data.
+        Evaluate the model using the given data.
+        :param train_ngram: The training n-grams.
+        :param test_ngram: The test n-grams.
+        :param train_enum: The enumerated training data.
+        :param test_enum: The enumerated test data.
+        :return: max_similarity: The maximum similarity between the test and training data.
+        :return: average_similarity: The average similarity between the test and training data.
+        :return: comparison: The comparison between the test and training data.
         """
 
         # Flatten the data
@@ -50,9 +58,10 @@ class NLPModel:
 
     def AUC(self, average_similarity, text_results_catalog):
         """
-        Calculate the Area Under the Curve (AUC) for the given threshold dictionary.
-        :param text_results_catalog: The threshold dictionary.
-        :return: The AUC value.
+        Calculate the AUC.
+        :param average_similarity: The average similarity between the test and training data.
+        :param text_results_catalog: The catalog of the test data.
+        :return: The AUC.
         """
         TP = 0
         FP = 0
@@ -86,6 +95,7 @@ class NLPModel:
     def print_max_similarity(self, max_similarity):
         """
         Print the maximum similarity between the test and training data.
+        :param max_similarity: The maximum similarity between the test and training data.
         :return: None
         """
         current_key = -1
@@ -101,6 +111,7 @@ class NLPModel:
     def print_average_similarity(self, average_similarity):
         """
         Print the average similarity between the test and training data.
+        :param average_similarity: The average similarity between the test and training data.
         :return: None
         """
         print("Average similarity:")
@@ -115,6 +126,7 @@ class NLPModel:
     def print_comparison(self, comparison):
         """
         Print the comparison between the test and training data.
+        :param comparison: The comparison between the test and training data.
         :return: None
         """
         current_key = -1
@@ -129,10 +141,14 @@ class NLPModel:
 
     def __cosine_similarity(self, mat_test, test_enum, mat_train, train_enum):
         """
-        Compare the test and training data using cosine similarity.
-        :param mat_test: The one-hot encoded test data.
+        Calculate the cosine similarity between the test and training data.
+        :param mat_test: The test data.
         :param test_enum: The enumerated test data.
-        :return: The maximum similarity, average similarity, and comparison between the test and training data.
+        :param mat_train: The training data.
+        :param train_enum: The enumerated training data.
+        :return: max_similarity: The maximum similarity between the test and training data.
+        :return: average_similarity: The average similarity between the test and training data.
+        :return: comparison: The comparison between the test and training data.
         """
         max_similarity = {}
         comparison = {}
@@ -175,7 +191,7 @@ class NLPModel:
         """
         Load the data from the given folder path.
         :param folder_path: The path to the folder containing the data.
-        :return: The loaded data.
+        :return: The data.
         """
         data = []
         for filename in sorted(os.listdir(folder_path)):
@@ -188,8 +204,8 @@ class NLPModel:
 
     def __clean_data(self, data):
         """
-        Clean the data from the given folder path.
-        :param folder_path: The path to the folder containing the data.
+        Clean the given data.
+        :param data: The data to clean.
         :return: The cleaned data.
         """
         preprocessor = Preprocessor()
@@ -198,8 +214,8 @@ class NLPModel:
 
     def __get_ngrams(self, data):
         """
-        Create n-grams from the given data.
-        :param data: The data to create n-grams from.
+        Get the n-grams of the given data.
+        :param data: The data to get the n-grams of.
         :return: The n-grams.
         """
         n_gram = []
@@ -219,9 +235,9 @@ class NLPModel:
     def __one_hot_encoding(self, corpus, data):
         """
         Perform one-hot encoding on the given data.
-        :param corpus: The corpus to encode.
+        :param corpus: The corpus of the data.
         :param data: The data to encode.
-        :return: The one-hot encoded data.
+        :return: The encoded data.
         """
         temp_vector = []
         one_hot_test = []
@@ -236,14 +252,14 @@ class NLPModel:
             temp_vector = []
         return one_hot_test
 
-    def __get_similarity_limit(self):
+    def get_similarity_limit(self):
         """
         Get the similarity limit.
         :return: The similarity limit.
         """
         return self.__similarity_limit
-    
-    def __get_n_gram(self):
+
+    def get_n_gram(self):
         """
         Get the n-gram.
         :return: The n-gram.

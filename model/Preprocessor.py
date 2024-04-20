@@ -12,15 +12,16 @@ class Preprocessor:
 
     def __init__(self):
         """
-        Initialize the preprocessor with the necessary parameters.
-        :param data: The data to be cleaned.
+        Initialize the Preprocessor class.
         """
         pass
 
     def clean_data(self, data):
         """
         Clean the data.
+        :param data: The data to clean.
         :return: The cleaned data.
+        :return: The enumeration of the text.
         """
         text_enum = self.__get_text_enum(data)
         data = self.__tokenize_data(data)
@@ -34,6 +35,7 @@ class Preprocessor:
     def __get_text_enum(self, data):
         """
         Get the enumeration of the text.
+        :param data: The data to enumerate.
         :return: The enumeration of the text.
         """
         text_enum = {}
@@ -51,20 +53,23 @@ class Preprocessor:
     def __tokenize_data(self, data):
         """
         Tokenize the data.
+        :param data: The data to tokenize.
         :return: The tokenized data.
         """
         return [sent_tokenize(text) for text in data]
 
     def __lower_case(self, data):
         """
-        Lower case the data.
-        :return: The lower cased data.
+        Convert the data to lower case.
+        :param data: The data to convert to lower case.
+        :return: The data in lower case.
         """
         return [[sentence.lower() for sentence in text] for text in data]
 
     def __remove_non_word(self, data):
         """
         Remove non-word characters from the data.
+        :param data: The data to remove non-word characters from.
         :return: The data with non-word characters removed.
         """
         return [
@@ -82,13 +87,15 @@ class Preprocessor:
     def __tokenize_words(self, data):
         """
         Tokenize the words in the data.
-        :return: The tokenized words.
+        :param data: The data to tokenize.
+        :return: The tokenized data.
         """
         return [word_tokenize(sentence) for text in data for sentence in text]
 
     def __remove_stop_words(self, data):
         """
         Remove stop words from the data.
+        :param data: The data to remove stop words from.
         :return: The data with stop words removed.
         """
         stop_words = set(stopwords.words("english"))
@@ -100,7 +107,9 @@ class Preprocessor:
     def __lemmatize_data(self, data):
         """
         Lemmatize the data.
-        :return: The lemmatized data."""
+        :param data: The data to lemmatize.
+        :return: The lemmatized data.
+        """
         lemmatizer = WordNetLemmatizer()
         return [
             [lemmatizer.lemmatize(word) for word in text]
