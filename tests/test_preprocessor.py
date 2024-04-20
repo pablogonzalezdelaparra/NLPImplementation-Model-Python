@@ -499,8 +499,87 @@ class TestPreprocessor(TestCase):
             ),
             self.p.clean_data(
                 [
-                    "a & sentence # with, many () symbols ¿ ? ¡ / $"
+                    "a & sentence # with, many () symbols ? ¡ / $"
                     "$$$$ second //// sentence & with = symbols"
+                ]
+            ),
+        )
+
+    def test___get_text_enum_symbols(self):
+        self.assertEqual(
+            {0: [0, 0], 1: [0, 1]},
+            self.p._Preprocessor__get_text_enum(
+                [
+                    "a & sentence # with, many () symbols ? ¡ / $"
+                    "$$$$ second //// sentence & with = symbols"
+                ]
+            ),
+        )
+
+    def test___tokenize_data_symbols(self):
+        self.assertEqual(
+            [
+                [
+                    "a & sentence # with, many () symbols ?",
+                    "¡ / $$$$$ second //// sentence & with = symbols",
+                ]
+            ],
+            self.p._Preprocessor__tokenize_data(
+                [
+                    "a & sentence # with, many () symbols ? ¡ / $"
+                    "$$$$ second //// sentence & with = symbols"
+                ]
+            ),
+        )
+
+    def test___lower_case_symbols(self):
+        self.assertEqual(
+            [
+                [
+                    "a & sentence # with, many () symbols ?",
+                    "¡ / $$$$$ second //// sentence & with = symbols",
+                ]
+            ],
+            self.p._Preprocessor__lower_case(
+                [
+                    [
+                        "a & sentence # with, many () symbols ?",
+                        "¡ / $$$$$ second //// sentence & with = symbols",
+                    ]
+                ]
+            ),
+        )
+
+    def test___remove_non_word_symbols(self):
+        self.assertEqual(
+            [
+                [
+                    "a  sentence  with many  symbols ",
+                    "   second  sentence  with  symbols",
+                ]
+            ],
+            self.p._Preprocessor__remove_non_word(
+                [
+                    [
+                        "a & sentence # with, many () symbols ?",
+                        "¡ / $$$$$ second //// sentence & with = symbols",
+                    ]
+                ],
+            ),
+        )
+
+    def test___tokenize_words_symbols(self):
+        self.assertEqual(
+            [
+                ["a", "sentence", "with", "many", "symbols"],
+                ["second", "sentence", "with", "symbols"],
+            ],
+            self.p._Preprocessor__tokenize_words(
+                [
+                    [
+                        "a  sentence  with many  symbols ",
+                        "   second  sentence  with  symbols",
+                    ]
                 ]
             ),
         )
