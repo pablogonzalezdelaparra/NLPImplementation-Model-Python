@@ -7,5 +7,6 @@ threshold_dic = {"0": 1, "1": 1, "2": 1, "3": 1, "4": 1, "5": 1, "6": 1, "7": 1,
 nlp = NLPModel()
 nlp.train(train_path)
 nlp.evaluate(test_path)
+nlp.print_max_similarity()
 nlp.print_average_similarity()
 nlp.AUC(threshold_dic)

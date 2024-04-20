@@ -78,8 +78,6 @@ class NLPModel:
         else:
             FPR = FP / (FP + TN)
 
-        TPR = TP / (TP + FN)
-        FPR = FP / (FP + TN)
         AUC = (1 + TPR - FPR) / 2
 
         print("AUC calculation:")
