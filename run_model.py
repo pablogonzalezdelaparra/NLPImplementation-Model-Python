@@ -37,6 +37,11 @@ max_similarity, average_similarity, comparison = nlp.evaluate_model(
 )
 nlp.AUC(average_similarity, text_results_catalog)
 
+nlp._NLPModel__cosine_similarity([],
+            0,
+            [],
+            0,)
+
 # Print the results
 nlp.print_average_similarity(average_similarity)
 nlp.print_max_similarity(max_similarity)

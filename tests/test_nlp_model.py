@@ -255,69 +255,45 @@ class TestNLPModel(TestCase):
     def test___clean_data_train(self):
         self.assertEqual(
             (
-                [
-                    
-                ],
+                [],
                 {},
             ),
             self.nlp._NLPModel__clean_data(
-                [
-                   
-                ],
+                [],
             ),
         )
 
     def test___get_ngrams_train_empty(self):
         self.assertEqual(
-            [
-                
-            ],
+            [],
             self.nlp._NLPModel__get_ngrams(
-                [
-                    
-                ],
+                [],
             ),
         )
 
     def test___flatten_data_empty(self):
         self.assertEqual(
-            [
-                
-            ],
+            [],
             self.nlp._NLPModel__flatten_data(
-                [
-                   
-                ],
+                [],
             ),
         )
 
     def test___one_hot_encoding_train_empty(self):
         self.assertEqual(
-            [
-               
-            ],
+            [],
             self.nlp._NLPModel__one_hot_encoding(
-                [
-                   
-                ],
-                [
-
-                ],
+                [],
+                [],
             ),
         )
 
     def test___one_hot_encoding_test_empty(self):
         self.assertEqual(
-            [
-              
-            ],
+            [],
             self.nlp._NLPModel__one_hot_encoding(
-                [
-                    
-                ],
-                [
-                   
-                ],
+                [],
+                [],
             ),
         )
 
@@ -326,9 +302,7 @@ class TestNLPModel(TestCase):
             (
                 {},
                 {},
-                {
-                    
-                },
+                {},
             ),
             self.nlp._NLPModel__cosine_similarity(
                 [],
@@ -343,8 +317,144 @@ class TestNLPModel(TestCase):
             (0, 0, 0, 0, 0.5),
             self.nlp.AUC(
                 {},
+                {},
+            ),
+        )
+
+    def test_get_n_gram(self):
+        self.assertEqual(
+            2,
+            self.nlp.get_n_gram(),
+        )
+
+    def test_get_similarity_limit(self):
+        self.assertEqual(
+            0.50,
+            self.nlp.get_similarity_limit(),
+        )
+
+    def test_evaluate_model_one(self):
+        self.assertEqual(
+            (
+                {(0, 0): [[0, 0], 0.0]},
+                {0: 0.0},
+                {(0, 0): [[0, 0], [0, 0], 0.0]},
+            ),
+            self.nlp.evaluate_model(
+                [[1]],
+                [[0]],
+                {0: [0, 0]},
+                {0: [0, 0]},
+            ),
+        )
+
+    def test_evaluate_AUC_one(self):
+        self.assertEqual(
+            (1, 0, 0, 0, 1.0),
+            self.nlp.AUC(
+                {0: 0.5662277660168379},
                 {
-                   
+                    "0": 1,
                 },
             ),
+        )
+
+    def test___cosine_similarity_one(self):
+        self.assertEqual(
+            (({(0, 0): [[0, 0], 1.0]}, {0: 1.0}, {(0, 0): [[0, 0], [0, 0], 1.0]})),
+            self.nlp._NLPModel__cosine_similarity(
+                [[1]],
+                {0: [0, 0]},
+                [[1]],
+                {0: [0, 0]},
+            ),
+        )
+
+    def test___get_ngrams_one(self):
+        self.assertEqual(
+            [
+                [],
+            ],
+            self.nlp._NLPModel__get_ngrams(
+                [
+                    [1],
+                ],
+            ),
+        )
+
+    def test___flatten_data_one(self):
+        self.assertEqual(
+            [],
+            self.nlp._NLPModel__flatten_data(
+                [
+                    [],
+                ],
+            ),
+        )
+
+    def test___one_hot_encoding_one(self):
+        self.assertEqual(
+            [[1]],
+            self.nlp._NLPModel__one_hot_encoding(
+                ["corpus"],
+                ["corpus"],
+            ),
+        )
+
+    def test_prepare_text_error(self):
+        self.assertRaises(
+            FileNotFoundError,
+            self.nlp.prepare_text,
+            "",
+        )
+
+    def test_prepare_text_invalid_path(self):
+        self.assertRaises(
+            FileNotFoundError,
+            self.nlp.prepare_text,
+            "invalid_path",
+        )
+
+    def test_prepare_text_non_existent_path(self):
+        self.assertRaises(
+            FileNotFoundError,
+            self.nlp.prepare_text,
+            "non_existent_path",
+        )
+
+    def test___clean_data_non_list(self):
+        self.assertRaises(
+            TypeError,
+            self.nlp._NLPModel__clean_data,
+            0,
+        )
+
+    def test___one_hot_encoding_non_list(self):
+        self.assertRaises(
+            TypeError,
+            self.nlp._NLPModel__one_hot_encoding,
+            0,
+            0,
+        )
+
+    def test___get_ngrams_non_list(self):
+        self.assertRaises(
+            TypeError,
+            self.nlp._NLPModel__get_ngrams,
+            0,
+        )
+
+    def test___flatten_data_non_list(self):
+        self.assertRaises(
+            TypeError,
+            self.nlp._NLPModel__flatten_data,
+            0,
+        )
+
+    def test_AUC_non_dict(self):
+        self.assertRaises(
+            AttributeError,
+            self.nlp.AUC,
+            0,
+            {},
         )
