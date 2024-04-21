@@ -1,8 +1,8 @@
 from model import NLPModel
 
 # Define the paths
-train_path = "./tests/train_data"
-test_path = "./tests/test_data"
+train_path = "./train_data/"
+test_path = "./test_data/"
 text_results_catalog = {
     "0": 1,
     "1": 1,
@@ -36,11 +36,6 @@ max_similarity, average_similarity, comparison = nlp.evaluate_model(
     train_data, test_data, train_enum, test_enum
 )
 nlp.AUC(average_similarity, text_results_catalog)
-
-nlp._NLPModel__cosine_similarity([],
-            0,
-            [],
-            0,)
 
 # Print the results
 nlp.print_average_similarity(average_similarity)

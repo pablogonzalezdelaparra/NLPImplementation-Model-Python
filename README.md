@@ -53,7 +53,7 @@ To get started with the NLP model:
 3. Install the required dependencies:
 
    ```
-   pip install -r requirements.txt
+   pip3 install -r requirements.txt
    ```
 
 4. Run the tests to ensure everything is set up correctly:
