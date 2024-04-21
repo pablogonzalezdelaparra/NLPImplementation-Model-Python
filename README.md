@@ -22,13 +22,13 @@ The model is built using the following frameworks:
 
 To run all the tests, execute the following command:
 
-```
+```python
 python3 -m unittest discover -s tests
 ```
 
 To run a specific test, execute the following command:
 
-```
+```python
 python3 -m unittest tests.test_example
 ```
 
@@ -40,29 +40,43 @@ To get started with the NLP model:
 
 1. Clone the repository:
 
-   ```
+   ```python
    git clone <repository-url>
    ```
 
 2. Navigate to the project directory:
 
-   ```
+   ```python
    cd NLPImplementation-Model-Python
    ```
 
 3. Install the required dependencies:
 
-   ```
+   ```python
    pip3 install -r requirements.txt
    ```
 
 4. Run the tests to ensure everything is set up correctly:
 
-   ```
+   ```python
    python3 -m unittest discover -s tests
    ```
 
 5. Start using the NLP model in your own projects by importing and utilizing the `NLPModel` class.
+   ```python
+   # You can use this file to run the model with the data provided in the data folders
+
+   python3 run_model.py
+   ```
+
+## Training and Testing Data
+
+The training and testing data are stored in two different directories:
+
+- `train_data` - Contains the training data for the NLP model
+- `test_data` - Contains the testing data for the NLP model
+
+The data is stored in plain text files, with each file containing a single abstract. The abstracts are used to train and test the model for text similarity detection.
 
 ## Contributing
 
