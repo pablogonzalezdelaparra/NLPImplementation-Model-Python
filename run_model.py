@@ -25,7 +25,7 @@ text_results_catalog = {
     "18": 0,
     "19": 0,
 }
-nlp = NLPModel()
+nlp = NLPModel(0.5, 3)
 
 # Prepare the data
 train_data, train_enum = nlp.prepare_text(train_path)
