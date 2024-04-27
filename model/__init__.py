@@ -30,6 +30,17 @@ class NLPModel:
         n_gram = self.__get_ngrams(clean_data)
         return n_gram, text_enum
 
+    def categorize_text_sentences(self, folder_path):
+        data = self.__load_folder(folder_path)
+        preprocessor = Preprocessor()
+        data, text_enum = preprocessor.categorize_sentences(data)
+
+        data_enum = {}
+        for _, value in text_enum.items():
+            data_enum[tuple([value[0], value[1]])] = data[value[0]][value[1]]
+
+        return data_enum, text_enum
+
     def evaluate_model(self, train_ngram, test_ngram, train_enum, test_enum):
         """
         Evaluate the model using the given data.
