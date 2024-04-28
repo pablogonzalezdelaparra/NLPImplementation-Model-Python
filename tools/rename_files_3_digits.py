@@ -16,5 +16,5 @@ def rename_files_with_three_digits(directory):
                 print(f"Renamed {filename} to {new_filename}")
 
 # Replace 'directory_path' with the path to your directory containing the files
-directory_path = './generated_data/paraphrase_data'
+directory_path = ''
 rename_files_with_three_digits(directory_path)

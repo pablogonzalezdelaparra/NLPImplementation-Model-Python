@@ -1,5 +1,0 @@
-Artifcial intelligence (AI) is looked upon nowadays as the potential major catalyst for the fourth industrial revolution.
-In the last decade, AI use in Orthopaedics increased approximately tenfold. Artifcial intelligence helps with tracking activities, evaluating diagnostic images, predicting injury risk, and several other uses. Chat Generated Pre-trained
-Transformer (ChatGPT), which is an AI-chatbot, represents an extremely controversial topic in the academic community. The aim of this review article is to simplify the concept of AI and study the extent of AI use in Orthopaedics
-and sports medicine literature. Additionally, the article will also evaluate the role of ChatGPT in scientifc research
-and publications.
