@@ -25,6 +25,13 @@ text_results_catalog = {
     "18": 0,
     "19": 0,
 }
+insert_replace_path = "./generated_data/insert_replace_data"
+
+# Create a dictionary of 200 keys with values of 1
+text_results_catalog = {}
+for i in range(219):
+    text_results_catalog[str(i)] = 1
+
 nlp = NLPModel(0.5, 3)
 
 # Prepare the data

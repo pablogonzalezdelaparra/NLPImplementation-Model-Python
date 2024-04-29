@@ -30,9 +30,9 @@ def create_csv(folder_paths, train_path, labels, output_file):
             writer.writerows(data)
 
 if __name__ == "__main__":
-    folder_paths = ['./generated_data/insert_replace_data', './generated_data/unordered_data', './generated_data/paraphrase_data']
-    labels = [0, 1, 2]
-    output_file = "data.csv"
+    folder_paths = ['./generated_data/insert_replace_data', './generated_data/paraphrase_data']
+    labels = [0, 1]
+    output_file = "data_2_class.csv"
     train_path = "./train_data"
     
     create_csv(folder_paths, train_path, labels, output_file)
