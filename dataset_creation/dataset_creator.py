@@ -1,6 +1,9 @@
 import random
 import os
-from model import Preprocessor
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from model.Preprocessor import Preprocessor
 def load_folder(folder_path):
         data = []
 
@@ -108,18 +111,21 @@ if __name__ == "__main__":
             os.makedirs("generated_data")
 
     def unorder():
-        unordered_data = unorder_data("./train_data")
+        unordered_data = unorder_data("../train_data")
 
+        """
         if not os.path.exists("generated_data/unordered_data"):
             os.makedirs("generated_data/unordered_data")
 
         for i, text in enumerate(unordered_data):
             with open(f"generated_data/unordered_data/FID-{i}-1v2.txt", "w", encoding="utf-8") as f:
                 f.write(text)
+        """
 
     def insert_replace():
-        inserted_replaced_data = insert_replace_data("./train_data", "./dataset_creation/test_data_insert")
+        inserted_replaced_data = insert_replace_data("../train_data", "./test_data_insert")
 
+        """
         # save the modified data in a new folder and a subfolder
         if not os.path.exists("generated_data/insert_replace_data"):
             os.makedirs("generated_data/insert_replace_data")
@@ -127,6 +133,7 @@ if __name__ == "__main__":
         for i, text in enumerate(inserted_replaced_data):
             with open(f"generated_data/insert_replace_data/FID-{i}-1v2.txt", "w", encoding="utf-8") as f:
                 f.write(text)
+        """
         
-    insert_replace()
-    unorder()
+    # insert_replace()
+    # unorder()
