@@ -1,0 +1,7 @@
+Advances in artificial intelligence (AI) created an increasing similarity between the performance of AI systems or AI-based robots and human communication. They raised the questions:
+1. whether it was possible to communicate with, understand, and even empathically perceive artificial agents;
+2. whether we should ascribe actual subjectivity and thus quasi-personal status to them beyond a certain level of simulation;
+3. what would be the impact of an increasing dissolution of the distinction between simulated and real encounters.
+(1) To answer these questions, the paper argued that the precondition for actually understanding others consisted in the implicit assumption of the subjectivity of our counterpart, which made shared feelings and a we-intentionality possible. This assumption was ultimately based on the presupposition of a shared form of life, conceived here as conviviality.
+(2) The possibility that future artificial agents could meet these preconditions was refuted on the basis of embodied and enactive cognition, which linked subjectivity and consciousness to the aliveness of an organism.
+(3) Even if subjectivity was in principle impossible for artificial agents, the distinction between simulated and real subjectivity might nevertheless become increasingly blurred. Here, possible consequences were discussed, especially using the example of virtual psychotherapy. Finally, the paper made a case for a mindful approach to the language we use to talk about artificial systems and pleaded for preventing a systematic pretense of subjectivity.

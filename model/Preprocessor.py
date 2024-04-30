@@ -32,6 +32,11 @@ class Preprocessor:
         data = self.__lemmatize_data(data)
         return data, text_enum
 
+    def categorize_sentences(self, data):
+        text_enum = self.__get_text_enum(data)
+        data = self.__tokenize_data(data)
+        return data, text_enum
+
     def __get_text_enum(self, data):
         """
         Get the enumeration of the text.

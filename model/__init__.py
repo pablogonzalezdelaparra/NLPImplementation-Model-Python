@@ -1,7 +1,11 @@
 import os
+import numpy as np
 from nltk.util import ngrams
 from sklearn.metrics import pairwise
 from model.Preprocessor import Preprocessor
+from transformers import BertTokenizer, BertModel
+import torch
+from sklearn.metrics.pairwise import cosine_similarity
 
 
 class NLPModel:
@@ -17,6 +21,8 @@ class NLPModel:
         """
         self.__similarity_limit = similarity_limit
         self.__n_gram = n_gram
+        self.__tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
+        self.__model = BertModel.from_pretrained("bert-base-uncased")
 
     def prepare_text(self, folder_path):
         """
@@ -29,6 +35,17 @@ class NLPModel:
         clean_data, text_enum = self.__clean_data(sentences)
         n_gram = self.__get_ngrams(clean_data)
         return n_gram, text_enum
+
+    def categorize_text_sentences(self, folder_path):
+        data = self.__load_folder(folder_path)
+        preprocessor = Preprocessor()
+        data, text_enum = preprocessor.categorize_sentences(data)
+
+        data_enum = {}
+        for _, value in text_enum.items():
+            data_enum[tuple([value[0], value[1]])] = data[value[0]][value[1]]
+
+        return data_enum, text_enum
 
     def evaluate_model(self, train_ngram, test_ngram, train_enum, test_enum):
         """
@@ -54,6 +71,126 @@ class NLPModel:
         max_similarity, average_similarity, comparison = self.__cosine_similarity(
             mat_test, test_enum, mat_train, train_enum
         )
+        return max_similarity, average_similarity, comparison
+    
+
+    def __evaluate_model_bert(self, mat_train, mat_test, train_enum, test_enum):
+        max_similarity = {}
+        comparison = {}
+
+        for test_index, (key, value) in enumerate(mat_test.items()):
+            for train_index, (key2, value2) in enumerate(mat_train.items()):
+                # Tokenize input
+                inputs = self.__tokenizer(
+                    [value, value2], return_tensors="pt", padding=True, truncation=True
+                )
+
+                # Get BERT embeddings
+                with torch.no_grad():
+                    outputs = self.__model(**inputs)
+
+                # Extract the embeddings for the [CLS] token
+                embeddings = outputs.last_hidden_state[:, 0, :]
+
+                # Reshape the embeddings
+                embeddings = embeddings.numpy()
+
+                similarity_score = cosine_similarity(
+                    embeddings[0].reshape(1, -1), embeddings[1].reshape(1, -1)
+                )[0][0]
+                print(embeddings[0], embeddings[1], similarity_score)
+                break
+
+                # Compute similarity
+                comparison[(key[0], key2[0])] = [
+                    test_enum[test_index],
+                    train_enum[train_index],
+                    similarity_score,
+                ]
+                if tuple(test_enum[test_index]) not in max_similarity:
+                    max_similarity[tuple(test_enum[test_index])] = [
+                        train_enum[train_index],
+                        similarity_score,
+                    ]
+                else:
+                    if similarity_score > max_similarity[tuple(test_enum[test_index])][1]:
+                        max_similarity[tuple(test_enum[test_index])] = [
+                            train_enum[train_index],
+                            similarity_score,
+                        ]
+
+        temp_average_similarity = {}
+        average_similarity = {}
+        for key, value in max_similarity.items():
+            if key[0] not in temp_average_similarity:
+                temp_average_similarity[key[0]] = [value[1]]
+            else:
+                temp_average_similarity[key[0]].append(value[1])
+
+        for key, value in temp_average_similarity.items():
+            average_similarity[key] = sum(value) / len(value)
+
+        return max_similarity, average_similarity, comparison
+
+    def evaluate_model_bert(self, mat_train, mat_test, train_enum, test_enum):
+        max_similarity = {}
+        comparison = {}
+        
+        # Prepare BERT embeddings for all training data
+        train_embeddings = {}
+        for train_index, (key, value) in enumerate(mat_train.items()):
+            inputs = self.__tokenizer(
+                value, return_tensors="pt", padding=True, truncation=True
+            )
+            with torch.no_grad():
+                outputs = self.__model(**inputs)
+            embeddings = outputs.last_hidden_state[:, 0, :].numpy()
+            train_embeddings[train_index] = embeddings
+
+        # Prepare BERT embeddings for all test data
+        test_embeddings = {}
+        for test_index, (key, value) in enumerate(mat_test.items()):
+            inputs = self.__tokenizer(
+                value, return_tensors="pt", padding=True, truncation=True
+            )
+            with torch.no_grad():
+                outputs = self.__model(**inputs)
+            embeddings = outputs.last_hidden_state[:, 0, :].numpy()
+            test_embeddings[test_index] = embeddings
+
+        for i in range(len(test_embeddings)):
+            for j in range(len(train_embeddings)):
+                similarity_score = cosine_similarity(
+                    test_embeddings[i].reshape(1, -1), train_embeddings[j].reshape(1, -1)
+                )[0][0]
+                comparison[(i, j)] = [
+                    test_enum[i],
+                    train_enum[j],
+                    similarity_score,
+                ]
+                if tuple(test_enum[i]) not in max_similarity:
+                    max_similarity[tuple(test_enum[i])] = [
+                        train_enum[j],
+                        similarity_score,
+                    ]
+                else:
+                    if similarity_score > max_similarity[tuple(test_enum[i])][1]:
+                        max_similarity[tuple(test_enum[i])] = [
+                            train_enum[j],
+                            similarity_score,
+                        ]
+
+        temp_average_similarity = {}
+        average_similarity = {}
+        for key, value in max_similarity.items():
+            if key[0] not in temp_average_similarity:
+                temp_average_similarity[key[0]] = [value[1]]
+            else:
+                temp_average_similarity[key[0]].append(value[1])
+
+        for key, value in temp_average_similarity.items():
+            average_similarity[key] = sum(value) / len(value)
+
         return max_similarity, average_similarity, comparison
 
     def AUC(self, average_similarity, text_results_catalog):
@@ -174,6 +311,8 @@ class NLPModel:
                             cosine_similarity[0][0],
                         ]
 
+        print("mx2", max_similarity)
+
         temp_average_similarity = {}
         average_similarity = {}
         for key, value in max_similarity.items():
@@ -184,6 +323,8 @@ class NLPModel:
 
         for key, value in temp_average_similarity.items():
             average_similarity[key] = sum(value) / len(value)
+
+        print("avg2", average_similarity)
 
         return max_similarity, average_similarity, comparison
 

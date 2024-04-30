@@ -27,17 +27,32 @@ text_results_catalog = {
 }
 nlp = NLPModel(0.5, 3)
 
-# Prepare the data
+# Prepare the data (NLP)
+"""
 train_data, train_enum = nlp.prepare_text(train_path)
 test_data, test_enum = nlp.prepare_text(test_path)
 
-# Evaluate the model
+# Evaluate the model (NLP)
 max_similarity, average_similarity, comparison = nlp.evaluate_model(
     train_data, test_data, train_enum, test_enum
 )
-nlp.AUC(average_similarity, text_results_catalog)
+"""
+# nlp.AUC(average_similarity, text_results_catalog)
+
+# Prepare the data (BERT)
+train_data_bert, train_enum_bert = nlp.categorize_text_sentences(train_path)
+test_data_bert, test_enum_bert = nlp.categorize_text_sentences(test_path)
+
+# Evaluate the model (BERT)
+max_similarity_bert, average_similarity_bert, comparison_bert = nlp.evaluate_model_bert(
+    train_data_bert, test_data_bert, train_enum_bert, test_enum_bert
+)
+# nlp.AUC(average_similarity_bert, text_results_catalog)
 
 # Print the results
-nlp.print_average_similarity(average_similarity)
-nlp.print_max_similarity(max_similarity)
+print(f"NLP\n")
+# nlp.print_average_similarity(average_similarity)
+print(f"BERT\n")
+#nlp.print_average_similarity(average_similarity_bert)
+nlp.print_max_similarity(max_similarity_bert)
 # nlp.print_comparison(comparison)
