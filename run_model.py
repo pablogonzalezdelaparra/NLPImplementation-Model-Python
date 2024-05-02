@@ -35,10 +35,11 @@ test_data, test_data_enum = nlp.prepare_sentences(test_path)
 max_similarity, average_similarity, comparison = nlp.evaluate_model(
     train_data, test_data, train_data_enum, test_data_enum
 )
-nlp.AUC(average_similarity, text_results_catalog)
+AUC = nlp.AUC(average_similarity, text_results_catalog)
 
 # Print the results
 print(f"\nNLP")
+print(f"AUC: {AUC}")
 nlp.print_average_similarity(average_similarity)
 nlp.print_max_similarity(max_similarity)
 
@@ -64,10 +65,11 @@ max_similarity = nlp.find_similar_text(
 max_similarity_texts, average_similarity_texts, comparison_texts = nlp.evaluate_model_text(
     train_data, test_data, train_texts_enum, test_texts_enum, max_similarity, train_data_enum, test_data_enum
 )
-nlp.AUC(average_similarity_texts, text_results_catalog)
+AUC_NLP2O = nlp.AUC(average_similarity_texts, text_results_catalog)
 
 # Print the results
 print(f"\nNLP 2.0")
+print(f"AUC: {AUC_NLP2O}")
 nlp.print_average_similarity(average_similarity_texts)
 nlp.print_max_similarity(max_similarity_texts)
 # nlp.print_comparison(comparison)
