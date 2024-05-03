@@ -2,7 +2,12 @@ import os
 from nltk.util import ngrams
 from sklearn.metrics import pairwise
 from model.Preprocessor import Preprocessor
-
+from sklearn.pipeline import Pipeline
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+from transformers import AutoTokenizer, AutoModel
+import torch
+from sklearn.metrics.pairwise import cosine_similarity
 
 class NLPModel:
     """
@@ -18,16 +23,125 @@ class NLPModel:
         self.__similarity_limit = similarity_limit
         self.__n_gram = n_gram
 
+    def initialize_bert_classifiers(self):
+        self.__tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased",)
+        self.__model = AutoModel.from_pretrained("bert-base-uncased",output_hidden_states=True)
+
+    def initialize_classifiers(self, train_data, num_groups=11, len_groups=10):
+        subjects_groups = [[i] * len_groups for i in range(num_groups)]
+        subjects = [subject for group in subjects_groups for subject in group]
+
+        self.__pipeline = Pipeline(
+            [("tfidf", TfidfVectorizer()), ("clf", LogisticRegression())]
+        )
+        self.__pipeline.fit(train_data, subjects)
+
+    def classify_text(self, test_data):
+        return self.__pipeline.predict(test_data)
+    
+    def find_similar_text(self, train_texts, test_texts, classifiers):
+        def get_embeddings(text,token_length):
+            tokens=self.__tokenizer(text,max_length=token_length,padding='max_length',truncation=True)
+            output=self.__model(torch.tensor(tokens.input_ids).unsqueeze(0),
+                        attention_mask=torch.tensor(tokens.attention_mask).unsqueeze(0)).hidden_states[-1]
+            return torch.mean(output,axis=1).detach().numpy()
+
+
+        def calculate_similarity(text1,text2,token_length=20):
+            out1=get_embeddings(text1,token_length=token_length)
+            out2=get_embeddings(text2,token_length=token_length)
+            sim1= cosine_similarity(out1,out2)[0][0]
+            return sim1
+
+        max_similarity = {}
+        for test_index, i in enumerate(classifiers):
+            start_range = i * 10
+            end_range = start_range + 10
+            train_texts_temp = train_texts[start_range:end_range]
+            for train_index, j in enumerate(train_texts_temp):
+                test_texts[test_index]
+                similarity = calculate_similarity(j,test_texts[test_index])
+                if test_index not in max_similarity:
+                    max_similarity[test_index] = [start_range + train_index, similarity]
+                else:
+                    if similarity > max_similarity[test_index][1]:
+                        max_similarity[test_index] = [start_range + train_index, similarity]
+
+        return max_similarity
+
     def prepare_text(self, folder_path):
+        texts = self.__load_folder(folder_path)
+        text_enum = self.__clean_data_texts(texts)
+        return texts, text_enum
+
+    def evaluate_model_text(self, train_ngram, test_ngram, train_enum, test_enum, max_similarity_text, train_data_enum, test_data_enum):   
+        # Flatten the data
+        train_n_gram_corpus = self.__flatten_data(train_ngram)
+
+        # One-hot encoding
+        mat_train = self.__one_hot_encoding(train_n_gram_corpus, train_ngram)
+
+        mat_test = self.__one_hot_encoding(train_n_gram_corpus, test_ngram)
+
+        # Evaluate the similarity between the two datasets
+        max_similarity, average_similarity, comparison = self.__cosine_similarity_text(
+            mat_train, mat_test, train_enum, test_enum, max_similarity_text, train_data_enum, test_data_enum
+        )
+        return max_similarity, average_similarity, comparison
+    
+    def __cosine_similarity_text(self, mat_train, mat_test, train_enum, test_enum, max_similarity_text, train_data_enum, test_data_enum):
+        max_similarity = {}
+        comparison = {}
+
+        for i in range(len(mat_test)):
+            num_test_text = test_data_enum[i][0]
+            start_range = train_enum[max_similarity_text[num_test_text][0]][0]
+            end_range = train_enum[max_similarity_text[num_test_text][0]][1]
+
+            for j in range(start_range, end_range):
+                cosine_similarity = pairwise.cosine_similarity(
+                    [mat_test[i]], [mat_train[j]]
+                )
+                comparison[(i, j)] = [
+                    test_data_enum[i],
+                    train_data_enum[j],
+                    cosine_similarity[0][0],
+                ]
+                if tuple(test_data_enum[i]) not in max_similarity:
+                    max_similarity[tuple(test_data_enum[i])] = [
+                        train_data_enum[j],
+                        cosine_similarity[0][0],
+                    ]
+                else:
+                    if cosine_similarity[0][0] > max_similarity[tuple(test_data_enum[i])][1]:
+                        max_similarity[tuple(test_data_enum[i])] = [
+                            train_data_enum[j],
+                            cosine_similarity[0][0],
+                        ]
+
+        temp_average_similarity = {}
+        average_similarity = {}
+        for key, value in max_similarity.items():
+            if key[0] not in temp_average_similarity:
+                temp_average_similarity[key[0]] = [value[1]]
+            else:
+                temp_average_similarity[key[0]].append(value[1])
+
+        for key, value in temp_average_similarity.items():
+            average_similarity[key] = sum(value) / len(value)
+
+        return max_similarity, average_similarity, comparison
+
+    def prepare_sentences(self, folder_path):
         """
         Prepare the text data for the model.
         :param folder_path: The path to the folder containing the data.
         :return: n_gram: The n-grams.
         :return: text_enum: The enumerated text data.
         """
-        sentences = self.__load_folder(folder_path)
-        clean_data, text_enum = self.__clean_data(sentences)
-        n_gram = self.__get_ngrams(clean_data)
+        texts = self.__load_folder(folder_path)
+        sentences, text_enum = self.__clean_data(texts)
+        n_gram = self.__get_ngrams(sentences)
         return n_gram, text_enum
 
     def evaluate_model(self, train_ngram, test_ngram, train_enum, test_enum):
@@ -103,24 +217,35 @@ class NLPModel:
         for key, value in max_similarity.items():
             if key[0] != current_key:
                 current_key = key[0]
-                print(f"-----Test file #{current_key}-----")
+                print(f"-----Test file #{int(current_key)+1}-----")
             print(
                 f"Sentence #{int(key[1])+1} --> Train file #{int(value[0][0])+1}. Sentence #{int(value[0][1])+1}: {round((value[1])*100, 3)}%"
             )
 
-    def print_average_similarity(self, average_similarity):
+    def print_average_similarity(self, average_similarity, max_similarity):
         """
         Print the average similarity between the test and training data.
         :param average_similarity: The average similarity between the test and training data.
         :return: None
         """
+        max_text = {}
+        for key, value in max_similarity.items():
+            if key[0] not in max_text:
+                max_text[key[0]] = [value[0][0]]
+            else:
+                max_text[key[0]].append(value[0][0])
+
+        for key, value in max_text.items():
+            # Mode in the value list
+            max_text[key] = max(set(value), key=value.count)
+
         print("Average similarity:")
         for key, value in average_similarity.items():
             flag = False
             if value > self.__similarity_limit:
                 flag = True
             print(
-                f"Test file #{int(key)+1} | Plagiarized: {flag} | Average similarity: {round((value)*100, 3)}%"
+                f"Test file #{int(key)+1} | Plagiarized: {flag} | Original file: {int(max_text[int(key)]+1)} | Average similarity: {round((value)*100, 3)}%"
             )
 
     def print_comparison(self, comparison):
@@ -215,6 +340,11 @@ class NLPModel:
         preprocessor = Preprocessor()
         data, text_enum = preprocessor.clean_data(data)
         return data, text_enum
+    
+    def __clean_data_texts(self, data):
+        preprocessor = Preprocessor()
+        text_enum = preprocessor.clean_data_text(data)
+        return text_enum
 
     def __get_ngrams(self, data):
         """

@@ -32,6 +32,15 @@ class Preprocessor:
         data = self.__lemmatize_data(data)
         return data, text_enum
 
+    def categorize_sentences(self, data):
+        text_enum = self.__get_text_enum(data)
+        data = self.__tokenize_data(data)
+        return data, text_enum
+    
+    def clean_data_text(self, data):
+        text_enum = self.__get_text_enum_text(data)
+        return text_enum
+
     def __get_text_enum(self, data):
         """
         Get the enumeration of the text.
@@ -47,6 +56,22 @@ class Preprocessor:
                 text_enum[global_count] = [i, count]
                 count += 1
                 global_count += 1
+
+        return text_enum
+    
+    def __get_text_enum_text(self, data):
+        """
+        Get the enumeration of the text.
+        :param data: The data to enumerate.
+        :return: The enumeration of the text.
+        """
+        text_enum = {}
+        global_count = 0
+        for i, text in enumerate(data):
+            tokenized_text = sent_tokenize(text)
+            count = len(tokenized_text)
+            text_enum[i] = [global_count, global_count + count]
+            global_count += count
 
         return text_enum
 

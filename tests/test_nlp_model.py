@@ -401,24 +401,24 @@ class TestNLPModel(TestCase):
             ),
         )
 
-    def test_prepare_text_error(self):
+    def test_prepare_sentences_error(self):
         self.assertRaises(
             FileNotFoundError,
-            self.nlp.prepare_text,
+            self.nlp.prepare_sentences,
             "",
         )
 
-    def test_prepare_text_invalid_path(self):
+    def test_prepare_sentences_invalid_path(self):
         self.assertRaises(
             FileNotFoundError,
-            self.nlp.prepare_text,
+            self.nlp.prepare_sentences,
             "invalid_path",
         )
 
-    def test_prepare_text_non_existent_path(self):
+    def test_prepare_sentences_non_existent_path(self):
         self.assertRaises(
             FileNotFoundError,
-            self.nlp.prepare_text,
+            self.nlp.prepare_sentences,
             "non_existent_path",
         )
 
