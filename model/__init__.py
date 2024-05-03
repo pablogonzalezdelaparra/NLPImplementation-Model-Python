@@ -93,10 +93,6 @@ class NLPModel:
         max_similarity = {}
         comparison = {}
 
-        print(max_similarity_text)
-        print(test_data_enum)
-        print(test_enum)
-
         for i in range(len(mat_test)):
             num_test_text = test_data_enum[i][0]
             start_range = train_enum[max_similarity_text[num_test_text][0]][0]
@@ -221,24 +217,35 @@ class NLPModel:
         for key, value in max_similarity.items():
             if key[0] != current_key:
                 current_key = key[0]
-                print(f"-----Test file #{current_key}-----")
+                print(f"-----Test file #{int(current_key)+1}-----")
             print(
                 f"Sentence #{int(key[1])+1} --> Train file #{int(value[0][0])+1}. Sentence #{int(value[0][1])+1}: {round((value[1])*100, 3)}%"
             )
 
-    def print_average_similarity(self, average_similarity):
+    def print_average_similarity(self, average_similarity, max_similarity):
         """
         Print the average similarity between the test and training data.
         :param average_similarity: The average similarity between the test and training data.
         :return: None
         """
+        max_text = {}
+        for key, value in max_similarity.items():
+            if key[0] not in max_text:
+                max_text[key[0]] = [value[0][0]]
+            else:
+                max_text[key[0]].append(value[0][0])
+
+        for key, value in max_text.items():
+            # Mode in the value list
+            max_text[key] = max(set(value), key=value.count)
+
         print("Average similarity:")
         for key, value in average_similarity.items():
             flag = False
             if value > self.__similarity_limit:
                 flag = True
             print(
-                f"Test file #{int(key)+1} | Plagiarized: {flag} | Average similarity: {round((value)*100, 3)}%"
+                f"Test file #{int(key)+1} | Plagiarized: {flag} | Original file: {int(max_text[int(key)]+1)} | Average similarity: {round((value)*100, 3)}%"
             )
 
     def print_comparison(self, comparison):
